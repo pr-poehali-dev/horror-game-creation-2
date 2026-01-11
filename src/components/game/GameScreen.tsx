@@ -23,36 +23,25 @@ interface GameScreenProps {
 const GameScreen = ({ playerName, settings, onExit, onSave, onUnlockAchievement }: GameScreenProps) => {
   const [playerPos, setPlayerPos] = useState({ x: 50, y: 50 });
   const [health, setHealth] = useState(100);
-  const [stamina, setStamina] = useState(100);
   const [enemy, setEnemy] = useState<Enemy>({ x: 80, y: 80, state: 'patrol' });
-  const [gameTime, setGameTime] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [running, setRunning] = useState(false);
   const keysPressed = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (paused) return;
 
     const gameLoop = setInterval(() => {
-      setGameTime(prev => prev + 1);
-
       if (keysPressed.current.has('w')) {
-        setPlayerPos(prev => ({ ...prev, y: Math.max(0, prev.y - (running ? 2 : 1)) }));
+        setPlayerPos(prev => ({ ...prev, y: Math.max(0, prev.y - 1) }));
       }
       if (keysPressed.current.has('s')) {
-        setPlayerPos(prev => ({ ...prev, y: Math.min(100, prev.y + (running ? 2 : 1)) }));
+        setPlayerPos(prev => ({ ...prev, y: Math.min(100, prev.y + 1) }));
       }
       if (keysPressed.current.has('a')) {
-        setPlayerPos(prev => ({ ...prev, x: Math.max(0, prev.x - (running ? 2 : 1)) }));
+        setPlayerPos(prev => ({ ...prev, x: Math.max(0, prev.x - 1) }));
       }
       if (keysPressed.current.has('d')) {
-        setPlayerPos(prev => ({ ...prev, x: Math.min(100, prev.x + (running ? 2 : 1)) }));
-      }
-
-      if (running && keysPressed.current.size > 0) {
-        setStamina(prev => Math.max(0, prev - 1));
-      } else {
-        setStamina(prev => Math.min(100, prev + 0.5));
+        setPlayerPos(prev => ({ ...prev, x: Math.min(100, prev.x + 1) }));
       }
 
       setEnemy(prevEnemy => {
@@ -91,8 +80,8 @@ const GameScreen = ({ playerName, settings, onExit, onSave, onUnlockAchievement 
           return {
             ...prevEnemy,
             state: 'patrol',
-            x: prevEnemy.x + Math.sin(gameTime * 0.01) * patrolSpeed,
-            y: prevEnemy.y + Math.cos(gameTime * 0.01) * patrolSpeed,
+            x: prevEnemy.x + Math.sin(Date.now() * 0.001) * patrolSpeed,
+            y: prevEnemy.y + Math.cos(Date.now() * 0.001) * patrolSpeed,
           };
         }
       });
@@ -107,13 +96,9 @@ const GameScreen = ({ playerName, settings, onExit, onSave, onUnlockAchievement 
     }, 50);
 
     return () => clearInterval(gameLoop);
-  }, [paused, playerPos, enemy, gameTime, running]);
+  }, [paused, playerPos, enemy]);
 
-  useEffect(() => {
-    if (gameTime === 6000) {
-      onUnlockAchievement('2');
-    }
-  }, [gameTime, onUnlockAchievement]);
+
 
   useEffect(() => {
     if (health <= 0) {
@@ -125,13 +110,11 @@ const GameScreen = ({ playerName, settings, onExit, onSave, onUnlockAchievement 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       keysPressed.current.add(e.key.toLowerCase());
-      if (e.key.toLowerCase() === 'shift') setRunning(true);
       if (e.key.toLowerCase() === 'escape') setPaused(prev => !prev);
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       keysPressed.current.delete(e.key.toLowerCase());
-      if (e.key.toLowerCase() === 'shift') setRunning(false);
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -180,21 +163,7 @@ const GameScreen = ({ playerName, settings, onExit, onSave, onUnlockAchievement 
             <Progress value={health} className="h-3 bg-red-950" />
           </div>
 
-          <div className="space-y-1">
-            <div className="flex justify-between text-sm">
-              <span className="text-green-500 flex items-center gap-2">
-                <Icon name="Zap" size={16} />
-                Выносливость
-              </span>
-              <span className="text-white font-bold">{Math.round(stamina)}%</span>
-            </div>
-            <Progress value={stamina} className="h-3 bg-green-950" />
-          </div>
 
-          <div className="flex justify-between text-sm pt-2 border-t border-gray-700">
-            <span className="text-gray-400">Время</span>
-            <span className="text-white font-mono">{Math.floor(gameTime / 60)}:{(gameTime % 60).toString().padStart(2, '0')}</span>
-          </div>
         </div>
 
         {enemy.state === 'chase' && (
@@ -282,8 +251,8 @@ const GameScreen = ({ playerName, settings, onExit, onSave, onUnlockAchievement 
       )}
 
       <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-center text-gray-500 text-sm space-y-1 z-20">
-        <p>WASD - Движение | Shift - Бег | ESC - Пауза</p>
-        <p className="text-xs">Избегайте красного врага и выживайте как можно дольше</p>
+        <p>WASD - Движение | ESC - Пауза</p>
+        <p className="text-xs">Избегайте красного врага и выживайте</p>
       </div>
     </div>
   );
