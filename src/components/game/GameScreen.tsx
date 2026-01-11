@@ -13,13 +13,14 @@ interface Enemy {
 }
 
 interface GameScreenProps {
+  playerName: string;
   settings: GameSettings;
   onExit: () => void;
   onSave: (save: GameSave) => void;
   onUnlockAchievement: (id: string) => void;
 }
 
-const GameScreen = ({ settings, onExit, onSave, onUnlockAchievement }: GameScreenProps) => {
+const GameScreen = ({ playerName, settings, onExit, onSave, onUnlockAchievement }: GameScreenProps) => {
   const [playerPos, setPlayerPos] = useState({ x: 50, y: 50 });
   const [health, setHealth] = useState(100);
   const [stamina, setStamina] = useState(100);
@@ -165,6 +166,9 @@ const GameScreen = ({ settings, onExit, onSave, onUnlockAchievement }: GameScree
 
       <div className="absolute top-6 left-6 space-y-4 z-20">
         <div className="bg-black/80 p-4 rounded-lg border border-gray-800 space-y-3 min-w-[250px]">
+          <div className="border-b border-gray-700 pb-2 mb-2">
+            <p className="text-[#ff8c00] font-bold text-lg">{playerName}</p>
+          </div>
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
               <span className="text-red-500 flex items-center gap-2">

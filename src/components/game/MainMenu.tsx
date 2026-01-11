@@ -1,9 +1,10 @@
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useEffect, useState } from 'react';
 
 interface MainMenuProps {
-  onNewGame: () => void;
+  onNewGame: (playerName: string) => void;
   onContinue: () => void;
   onSettings: () => void;
   onAchievements: () => void;
@@ -11,6 +12,8 @@ interface MainMenuProps {
 
 const MainMenu = ({ onNewGame, onContinue, onSettings, onAchievements }: MainMenuProps) => {
   const [flicker, setFlicker] = useState(false);
+  const [showNameInput, setShowNameInput] = useState(false);
+  const [playerName, setPlayerName] = useState('');
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -49,7 +52,7 @@ const MainMenu = ({ onNewGame, onContinue, onSettings, onAchievements }: MainMen
       <div className="relative z-10 text-center space-y-8 px-4">
         <div className="space-y-4">
           <h1 
-            className={`creepster text-7xl md:text-9xl text-[#8B0000] text-shadow-glow ${flicker ? 'animate-flicker' : ''}`}
+            className={`creepster text-7xl md:text-9xl text-[#ff8c00] text-shadow-glow ${flicker ? 'animate-flicker' : ''}`}
           >
             NIGHTMARE
           </h1>
@@ -59,14 +62,55 @@ const MainMenu = ({ onNewGame, onContinue, onSettings, onAchievements }: MainMen
         </div>
 
         <div className="flex flex-col gap-4 max-w-md mx-auto mt-12">
-          <Button
-            size="lg"
-            className="bg-[#8B0000] hover:bg-[#a01010] text-white text-xl py-6 border border-red-900 hover:shadow-[0_0_20px_rgba(139,0,0,0.5)] transition-all"
-            onClick={onNewGame}
-          >
-            <Icon name="Play" className="mr-2" size={24} />
-            Новая игра
-          </Button>
+          {!showNameInput ? (
+            <Button
+              size="lg"
+              className="bg-[#8B0000] hover:bg-[#a01010] text-white text-xl py-6 border border-red-900 hover:shadow-[0_0_20px_rgba(139,0,0,0.5)] transition-all"
+              onClick={() => setShowNameInput(true)}
+            >
+              <Icon name="Play" className="mr-2" size={24} />
+              Новая игра
+            </Button>
+          ) : (
+            <div className="space-y-4 p-6 bg-black/70 rounded-lg border border-gray-800">
+              <p className="text-white text-lg mb-2">Введите ваше имя:</p>
+              <Input
+                type="text"
+                placeholder="Ваше имя"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                className="bg-gray-900 border-gray-700 text-white text-xl py-6"
+                maxLength={20}
+                autoFocus
+              />
+              <div className="flex gap-2">
+                <Button
+                  size="lg"
+                  className="flex-1 bg-[#8B0000] hover:bg-[#a01010] text-white"
+                  onClick={() => {
+                    if (playerName.trim()) {
+                      onNewGame(playerName.trim());
+                    }
+                  }}
+                  disabled={!playerName.trim()}
+                >
+                  <Icon name="Check" className="mr-2" size={20} />
+                  Начать
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-gray-700 hover:border-gray-500 bg-black/50"
+                  onClick={() => {
+                    setShowNameInput(false);
+                    setPlayerName('');
+                  }}
+                >
+                  <Icon name="X" size={20} />
+                </Button>
+              </div>
+            </div>
+          )}
 
           <Button
             size="lg"

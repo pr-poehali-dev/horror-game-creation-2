@@ -31,6 +31,7 @@ export interface GameSave {
 
 const Index = () => {
   const [gameState, setGameState] = useState<GameState>('menu');
+  const [playerName, setPlayerName] = useState<string>('');
   const [settings, setSettings] = useState<GameSettings>({
     graphics: 'high',
     volume: 70,
@@ -92,7 +93,10 @@ const Index = () => {
     <div className="w-screen h-screen overflow-hidden bg-[#0a0a0a]">
       {gameState === 'menu' && (
         <MainMenu 
-          onNewGame={() => setGameState('playing')}
+          onNewGame={(name) => {
+            setPlayerName(name);
+            setGameState('playing');
+          }}
           onContinue={() => setGameState('saves')}
           onSettings={() => setGameState('settings')}
           onAchievements={() => setGameState('achievements')}
@@ -101,6 +105,7 @@ const Index = () => {
       
       {gameState === 'playing' && (
         <GameScreen 
+          playerName={playerName}
           settings={settings}
           onExit={() => setGameState('menu')}
           onSave={saveGame}
